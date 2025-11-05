@@ -16,14 +16,6 @@ let swiper = new Swiper(".topslider__slider", {
     spaceBetween: 10,
     slidesPerView: 1.48,
     allowTouchMove: true,
-    // navigation: {
-    //     nextEl: ".button-next",
-    //     prevEl: ".button-prev",
-    // },
-    // pagination: {
-    //     el: ".swiper-pagination",
-    //     clickable: true,
-    // },
     breakpoints: {
         769: {
             spaceBetween: 20,
@@ -50,11 +42,7 @@ function initSwiper() {
         productImages = undefined;
     }
 }
-
-// 1. Инициализация при загрузке страницы (load)
 window.addEventListener('load', initSwiper);
-
-// 2. Инициализация/уничтожение при изменении размера окна (resize)
 window.addEventListener('resize', initSwiper);
 
 let blogSlider = new Swiper(".blogslider__slider", {
@@ -62,10 +50,6 @@ let blogSlider = new Swiper(".blogslider__slider", {
     spaceBetween: 10,
     slidesPerView: 1,
     allowTouchMove: true,
-    // navigation: {
-    //     nextEl: ".button-next",
-    //     prevEl: ".button-prev",
-    // },
     pagination: {
         el: ".blogslider__slider-pagination",
         clickable: true,
@@ -83,10 +67,6 @@ let prodSlider = new Swiper(".prodslider__slider", {
     spaceBetween: 10,
     slidesPerView: 2,
     allowTouchMove: true,
-    // navigation: {
-    //     nextEl: ".button-next",
-    //     prevEl: ".button-prev",
-    // },
     pagination: {
         el: ".prodslider__pagination",
         clickable: true,
