@@ -1315,6 +1315,9 @@ main.main{
         width: 100%;
         max-width: 111px;
     }
+    .hero__top .header__search-input{
+        color: #231F20;
+    }
 }
 /* categories */
 .categories__title{
@@ -2072,7 +2075,7 @@ main.main{
     display: flex;
     align-items: center;
     gap: 0.313vw;
-    color: #000;
+    color: #231F20;
     font-family: "TacticSans", sans-serif;
     font-size: 1vw;
     font-weight: 400;
