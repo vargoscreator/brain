@@ -356,3 +356,26 @@ function resizeHeight(){
 window.addEventListener('resize', () => {
   resizeHeight()
 });
+
+const heroBtn = document.querySelector('.hero__btn');
+const heroSection = document.querySelector('.hero');
+if (heroBtn && heroSection) {
+    heroBtn.addEventListener('click', () => {
+        const heroBottom = heroSection.offsetTop + heroSection.offsetHeight;
+        window.scrollTo({
+            top: heroBottom,
+            behavior: 'smooth'
+        });
+    });
+}
+// Получаем блок с кнопками
+const categoriesSelect = document.querySelector('.categories__select');
+if (categoriesSelect) {
+    const categoriesSelectBtn = categoriesSelect.querySelectorAll('.categories__select-btn');
+    categoriesSelectBtn.forEach(btn => {
+        btn.addEventListener('click', () => {
+            categoriesSelectBtn.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+}

@@ -1282,6 +1282,20 @@ main.main{
 .hero__top .header__lang-selected::after{
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7' fill='none'%3E%3Cpath d='M6.17202 6.41131L11.482 0.838306C11.5707 0.745318 11.6201 0.621776 11.6201 0.493306C11.6201 0.364835 11.5707 0.241295 11.482 0.148306L11.476 0.142306C11.433 0.0970708 11.3813 0.0610512 11.324 0.0364375C11.2667 0.0118237 11.2049 -0.00086931 11.1425 -0.000869316C11.0801 -0.000869321 11.0184 0.0118237 10.9611 0.0364375C10.9037 0.0610512 10.852 0.0970707 10.809 0.142306L5.80902 5.39031L0.811022 0.142305C0.768049 0.0970698 0.716323 0.0610503 0.65899 0.0364366C0.601657 0.0118228 0.539916 -0.000870243 0.477522 -0.000870248C0.415129 -0.000870254 0.353388 0.0118228 0.296055 0.0364365C0.238722 0.0610503 0.186996 0.0970698 0.144023 0.142305L0.138022 0.148305C0.0493773 0.241294 -7.38444e-05 0.364834 -7.38557e-05 0.493305C-7.38669e-05 0.621775 0.0493773 0.745317 0.138022 0.838305L5.44802 6.41131C5.49472 6.46032 5.55088 6.49934 5.61311 6.526C5.67533 6.55266 5.74233 6.56641 5.81002 6.56641C5.87772 6.56641 5.94471 6.55266 6.00694 6.526C6.06916 6.49934 6.12532 6.46032 6.17202 6.41131Z' fill='%23FAFAFA'/%3E%3C/svg%3E");
 }
+.hero__btn{
+    position: absolute;
+    bottom: 0.98vw;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    width: 1.961vw;
+    height: 1.961vw;
+    min-width: 1.961vw;
+}
+.hero__btn svg{
+    width: 1.176vw;
+    height: auto;
+}
 @media (max-width: 768px) {
     .hero{
         margin-top: 10px;
@@ -1317,6 +1331,15 @@ main.main{
     }
     .hero__top .header__search-input{
         color: #231F20;
+    }
+    .hero__btn{
+        bottom: 10px;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+    .hero__btn svg{
+        width: 23.99px;
     }
 }
 /* categories */
@@ -1429,9 +1452,14 @@ main.main{
     overflow: hidden;
     border: 0.128vw solid #EEE;
     position: relative;
+    transition: all .2s ease;
 }
 .categories__product-top:hover .categories__product-image img{
     transform: scale(1.1);
+}
+.categories__product:hover .categories__product-top{
+    box-shadow: -7.313vw 13.938vw 4.375vw 0 rgba(133, 133, 133, 0.00), -4.688vw 8.938vw 4vw 0 rgba(133, 133, 133, 0.01), -2.625vw 5vw 3.375vw 0 rgba(133, 133, 133, 0.05), -1.188vw 2.25vw 2.5vw 0 rgba(133, 133, 133, 0.09), -0.313vw 0.563vw 1.375vw 0 rgba(133, 133, 133, 0.10);
+
 }
 .categories__product-info{
     position: absolute;
@@ -1444,6 +1472,7 @@ main.main{
     align-items: start;
     border-radius: 0.511vw;
     background: #EEE;
+    z-index: 10;
 }
 .categories__product-image{
     height: 33.313vw;
