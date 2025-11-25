@@ -368,7 +368,6 @@ if (heroBtn && heroSection) {
         });
     });
 }
-// Получаем блок с кнопками
 const categoriesSelect = document.querySelector('.categories__select');
 if (categoriesSelect) {
     const categoriesSelectBtn = categoriesSelect.querySelectorAll('.categories__select-btn');
