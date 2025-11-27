@@ -24,6 +24,8 @@ let swiper = new Swiper(".topslider__slider", {
     },
 });
 
+
+
 let productImages = undefined;
 function initSwiper() {
     if (window.innerWidth < 769 && productImages === undefined) {
@@ -76,6 +78,17 @@ let prodSlider = new Swiper(".prodslider__slider", {
             slidesPerView: 'auto',
             spaceBetween: 20,
         },
+    },
+});
+
+let productSlider = new Swiper(".product__slider", {
+    loop: false,
+    spaceBetween: 10,
+    slidesPerView: 1,
+    allowTouchMove: true,
+    pagination: {
+        el: ".product__slider-pagination",
+        clickable: true,
     },
 });
 
@@ -252,11 +265,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+
     const HEADERS = [
         "Код", 
         "Модель", 
         "Довжина, м", 
-        "Тест,г", 
+        "Тест, г", 
         "Лад", 
         "Вага, г", 
         "К-ть секцій", 
@@ -265,87 +279,73 @@ document.addEventListener('DOMContentLoaded', () => {
         "Тест квівертипів", 
         "Ціна, грн"
     ];
+
     const originalHTMLStore = new Map();
+
     function transformToMobile(item) {
-        if (item.hasAttribute('data-mobile-transformed')) {
-            return;
-        }
+        if (item.dataset.mobileTransformed) return;
+
         originalHTMLStore.set(item, item.innerHTML);
-        const blocks = item.querySelectorAll('.models__table-block');
-        const firstBlockNew = blocks[0]; 
-        if (blocks[2] && blocks[2].querySelector('.models__table-descr')) {
-            firstBlockNew.appendChild(blocks[2].querySelector('.models__table-descr'));
-        }
-        if (blocks[3] && blocks[3].querySelector('.models__table-descr')) {
-            firstBlockNew.appendChild(blocks[3].querySelector('.models__table-descr'));
-        }
-        if (blocks[2]) blocks[2].remove();
-        if (blocks[3]) blocks[3].remove();
-        const newBlocks = item.querySelectorAll('.models__table-block');
+
+        const blocks = [...item.querySelectorAll('.models__table-block')];
+
+        const codeBlock = blocks[0]; 
+        const modelBlock = blocks[1]; 
+        const lenBlock = blocks[2];   
+        const testBlock = blocks[3];  
+        const weightBlock = blocks[5]; 
+        item.insertBefore(modelBlock, codeBlock); 
+        modelBlock.appendChild(lenBlock.querySelector('.models__table-descr'));
+        modelBlock.appendChild(testBlock.querySelector('.models__table-descr'));
+        modelBlock.appendChild(weightBlock.querySelector('.models__table-descr'));
+        lenBlock.remove();
+        testBlock.remove();
+        weightBlock.remove();
+        const newBlocks = [...item.querySelectorAll('.models__table-block')];
+        const headerIndices = [0, 4, 6, 7, 8, 9, 10]; 
+
         for (let i = 1; i < newBlocks.length; i++) {
-            let originalIndex;
-            if (i === 1) { 
-                originalIndex = 1; 
-            } else if (i === 2) { 
-                 originalIndex = 4; 
-            } else if (i === 3) { 
-                 originalIndex = 5; 
-            } else if (i === 4) { 
-                 originalIndex = 6; 
-            } else if (i === 5) { 
-                 originalIndex = 7; 
-            } else if (i === 6) { 
-                 originalIndex = 8; 
-            } else if (i === 7) { 
-                 originalIndex = 9; 
-            } else if (i === 8) { 
-                 originalIndex = 10; 
-            } else {
-                 continue; 
-            }
-
-            if (newBlocks[i] && originalIndex < HEADERS.length) {
-                const headerText = HEADERS[originalIndex];
-                
-                const header = document.createElement('h4');
-                header.className = 'models__table-title';
-                header.textContent = headerText;
-                
-                newBlocks[i].prepend(header);
-            }
+            const h = document.createElement('h4');
+            h.className = 'models__table-title';
+            h.textContent = HEADERS[headerIndices[i - 1]]; 
+            newBlocks[i].prepend(h);
         }
 
-        firstBlockNew.addEventListener('click', function handler() {
-            if (window.innerWidth < 768) {
-                item.classList.toggle('active');
-            }
+        const btn = item.querySelector('.models__table-btn');
+        if (btn) {
+            const btnWrapper = document.createElement('div');
+            btnWrapper.className = "models__table-btn-mobile-wrap";
+            btnWrapper.appendChild(btn);
+            item.appendChild(btnWrapper);
+        }
+
+        newBlocks[0].addEventListener('click', () => {
+            if (window.innerWidth < 768) item.classList.toggle('active');
         });
-        item.setAttribute('data-mobile-transformed', 'true');
+
+        item.dataset.mobileTransformed = "true";
     }
+
     function restoreToDesktop(item) {
-        if (item.hasAttribute('data-mobile-transformed')) {
-            const originalHTML = originalHTMLStore.get(item);
-            if (originalHTML) {
-                item.innerHTML = originalHTML;
-                item.removeAttribute('data-mobile-transformed');
-                item.classList.remove('active');
-            }
-        }
+        if (!item.dataset.mobileTransformed) return;
+
+        const saved = originalHTMLStore.get(item);
+        if (saved) item.innerHTML = saved;
+
+        item.removeAttribute('data-mobile-transformed');
+        item.classList.remove('active');
     }
+
     function handleScreenSizeChange() {
-        const tableItems = document.querySelectorAll('.models__table-item');
-        const isMobile = window.innerWidth < 768;
-        tableItems.forEach(item => {
-            if (isMobile) {
-                transformToMobile(item);
-            } else {
-                restoreToDesktop(item);
-            }
-        });
+        const items = document.querySelectorAll('.models__table-item');
+        const mobile = window.innerWidth < 768;
+        items.forEach(item => mobile ? transformToMobile(item) : restoreToDesktop(item));
     }
+
     handleScreenSizeChange();
     window.addEventListener('resize', handleScreenSizeChange);
 });
+
 
 
 resizeHeight()
