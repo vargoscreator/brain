@@ -22,6 +22,10 @@ let swiper = new Swiper(".topslider__slider", {
             slidesPerView: 4,
         },
     },
+    pagination: {
+        el: ".topslider__slider-pagination",
+        clickable: true,
+    },
 });
 
 
@@ -162,6 +166,32 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof Fancybox !== 'undefined' && Fancybox.bind) {
+        const images = document.querySelectorAll('.product__image img');
+        images.forEach((img) => {
+            img.setAttribute('data-fancybox', 'gallery');
+            img.setAttribute('data-src', img.src);
+            img.style.cursor = 'zoom-in';
+        });
+
+        Fancybox.bind('[data-fancybox="gallery"]', {
+            Thumbs: true,
+            Toolbar: {
+                display: [
+                    { id: "counter", position: "center" },
+                    "zoom",
+                    "slideshow",
+                    "fullscreen",
+                    "close",
+                ],
+            },
+        });
+    } else {
+        console.warn('Fancybox не подключен или не найден.');
+    }
+});
+
 
 
 document.querySelectorAll('.gallery__video').forEach(container => {
@@ -267,83 +297,125 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', () => {
 
     const HEADERS = [
-        "Код", 
-        "Модель", 
-        "Довжина, м", 
-        "Тест, г", 
-        "Лад", 
-        "Вага, г", 
-        "К-ть секцій", 
-        "Трансп. довжина, см", 
-        "Діаметр/довжина квівертипів, мм", 
-        "Тест квівертипів", 
-        "Ціна, грн"
+        "Код", "Модель", "Довжина, м", "Тест, г", "Лад", "Вага, г",
+        "К-ть секцій", "Трансп. довжина, см", "Діаметр/довжина квівертипів, мм",
+        "Тест квівертипів", "Ціна, грн"
     ];
 
     const originalHTMLStore = new Map();
 
     function transformToMobile(item) {
-        if (item.dataset.mobileTransformed) return;
+        if (item.dataset.mobileTransformed === "true") return;
 
         originalHTMLStore.set(item, item.innerHTML);
 
         const blocks = [...item.querySelectorAll('.models__table-block')];
 
-        const codeBlock = blocks[0]; 
-        const modelBlock = blocks[1]; 
-        const lenBlock = blocks[2];   
-        const testBlock = blocks[3];  
-        const weightBlock = blocks[5]; 
-        item.insertBefore(modelBlock, codeBlock); 
-        modelBlock.appendChild(lenBlock.querySelector('.models__table-descr'));
-        modelBlock.appendChild(testBlock.querySelector('.models__table-descr'));
-        modelBlock.appendChild(weightBlock.querySelector('.models__table-descr'));
-        lenBlock.remove();
-        testBlock.remove();
-        weightBlock.remove();
-        const newBlocks = [...item.querySelectorAll('.models__table-block')];
-        const headerIndices = [0, 4, 6, 7, 8, 9, 10]; 
+        const modelBlock   = blocks[1];
+        const lengthBlock  = blocks[2];
+        const testBlock    = blocks[3];
+        const weightBlock  = blocks[5];
 
-        for (let i = 1; i < newBlocks.length; i++) {
-            const h = document.createElement('h4');
-            h.className = 'models__table-title';
-            h.textContent = HEADERS[headerIndices[i - 1]]; 
-            newBlocks[i].prepend(h);
+        const modelValue   = modelBlock.querySelector('.models__table-descr').textContent.trim();
+        const lengthValue  = lengthBlock.querySelector('.models__table-descr').textContent.trim();
+        const testValue    = testBlock.querySelector('.models__table-descr').textContent.trim();
+        const weightValue  = weightBlock.querySelector('.models__table-descr').textContent.trim();
+
+        modelBlock.innerHTML = `
+            <p class="models__table-descr">${modelValue}</p>
+            <p class="models__table-descr">${lengthValue}</p>
+            <p class="models__table-descr">${testValue}</p>
+            <p class="models__table-descr">${weightValue}</p>
+        `;
+
+        if (item.firstChild !== modelBlock) {
+            item.insertBefore(modelBlock, item.firstChild);
         }
+
+        const visibleBlocks = [
+            modelBlock,
+            blocks[0],
+            lengthBlock,
+            testBlock,
+            blocks[4], 
+            weightBlock,
+            blocks[6],
+            blocks[7],
+            blocks[8],
+            blocks[9],
+            blocks[10]
+        ];
+
+        const titles = [
+            null,
+            HEADERS[0],
+            HEADERS[2],
+            HEADERS[3],
+            HEADERS[4],
+            HEADERS[5],
+            HEADERS[6],
+            HEADERS[7],
+            HEADERS[8],
+            HEADERS[9],
+            HEADERS[10]
+        ];
+
+        visibleBlocks.forEach((block, i) => {
+            if (!block || i === 0) return;
+            let h4 = block.querySelector('h4.models__table-title');
+            if (!h4) {
+                h4 = document.createElement('h4');
+                h4.className = 'models__table-title';
+                block.prepend(h4);
+            }
+            h4.textContent = titles[i];
+        });
+
+        const fragment = document.createDocumentFragment();
+        visibleBlocks.forEach(block => block && fragment.appendChild(block));
+        item.innerHTML = '';
+        item.appendChild(fragment);
 
         const btn = item.querySelector('.models__table-btn');
-        if (btn) {
-            const btnWrapper = document.createElement('div');
-            btnWrapper.className = "models__table-btn-mobile-wrap";
-            btnWrapper.appendChild(btn);
-            item.appendChild(btnWrapper);
+        if (btn && !btn.closest('.models__table-btn-mobile-wrap')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'models__table-btn-mobile-wrap';
+            btn.parentNode.insertBefore(wrapper, btn);
+            wrapper.appendChild(btn);
         }
 
-        newBlocks[0].addEventListener('click', () => {
-            if (window.innerWidth < 768) item.classList.toggle('active');
+        modelBlock.style.cursor = 'pointer';
+        modelBlock.addEventListener('click', e => {
+            if (window.innerWidth < 768) {
+                e.stopPropagation();
+                item.classList.toggle('active');
+            }
         });
 
         item.dataset.mobileTransformed = "true";
     }
 
     function restoreToDesktop(item) {
-        if (!item.dataset.mobileTransformed) return;
-
-        const saved = originalHTMLStore.get(item);
-        if (saved) item.innerHTML = saved;
-
+        if (!originalHTMLStore.has(item)) return;
+        item.innerHTML = originalHTMLStore.get(item);
         item.removeAttribute('data-mobile-transformed');
         item.classList.remove('active');
+        originalHTMLStore.delete(item);
     }
 
-    function handleScreenSizeChange() {
-        const items = document.querySelectorAll('.models__table-item');
-        const mobile = window.innerWidth < 768;
-        items.forEach(item => mobile ? transformToMobile(item) : restoreToDesktop(item));
+    function handleResize() {
+        const isMobile = window.innerWidth < 768;
+        document.querySelectorAll('.models__table-item').forEach(item => {
+            isMobile ? transformToMobile(item) : restoreToDesktop(item);
+        });
     }
 
-    handleScreenSizeChange();
-    window.addEventListener('resize', handleScreenSizeChange);
+    handleResize();
+    let timeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(handleResize, 100);
+    });
 });
 
 
@@ -378,3 +450,15 @@ if (categoriesSelect) {
         });
     });
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const moreBtn = document.querySelector('.product__more');
+    const aboutBlock = document.querySelector('.product__about');
+
+    if (moreBtn && aboutBlock) {
+        moreBtn.addEventListener('click', () => {
+            aboutBlock.classList.add('show-all');
+        });
+    }
+});
