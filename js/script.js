@@ -311,16 +311,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const blocks = [...item.querySelectorAll('.models__table-block')];
 
+        // Блоки по индексу:
+        // blocks[1] = Модель
+        // blocks[2] = Довжина, м
+        // blocks[3] = Тест, г
+        // blocks[5] = Вага, г
+        // blocks[10] = Ціна, грн
+
         const modelBlock   = blocks[1];
         const lengthBlock  = blocks[2];
         const testBlock    = blocks[3];
         const weightBlock  = blocks[5];
+        const priceBlock   = blocks[10];
 
         const modelValue   = modelBlock.querySelector('.models__table-descr').textContent.trim();
         const lengthValue  = lengthBlock.querySelector('.models__table-descr').textContent.trim();
         const testValue    = testBlock.querySelector('.models__table-descr').textContent.trim();
         const weightValue  = weightBlock.querySelector('.models__table-descr').textContent.trim();
 
+        // 1. Создаем новый блок для дублирования "Модели" с заголовком
+        const newModelBlock = document.createElement('div');
+        newModelBlock.className = 'models__table-block';
+        newModelBlock.innerHTML = `
+            <h4 class="models__table-title">${HEADERS[1]}</h4>
+            <p class="models__table-descr">${modelValue}</p>
+        `;
+
+        // Сохраняем и удаляем мобильную кнопку (как было в оригинале)
+        let btnMobileWrap = priceBlock.querySelector('.models__table-btn-mobile-wrap');
+        if (!btnMobileWrap) {
+            const btn = priceBlock.querySelector('.models__table-btn');
+            if (btn) {
+                btnMobileWrap = document.createElement('div');
+                btnMobileWrap.className = 'models__table-btn-mobile-wrap';
+                btnMobileWrap.appendChild(btn);
+            }
+        }
+        if (btnMobileWrap && btnMobileWrap.parentNode) {
+            btnMobileWrap.remove();
+        }
+
+        // 2. Пересобираем modelBlock как агрегированный мобильный заголовок
         modelBlock.innerHTML = `
             <p class="models__table-descr">${modelValue}</p>
             <p class="models__table-descr">${lengthValue}</p>
@@ -328,40 +359,47 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="models__table-descr">${weightValue}</p>
         `;
 
+        // Вставляем агрегированный блок в начало
         if (item.firstChild !== modelBlock) {
             item.insertBefore(modelBlock, item.firstChild);
         }
 
+        // 3. Обновляем список видимых блоков, включая новый newModelBlock
+        // blocks[1] (modelBlock) теперь АГРЕГИРОВАННЫЙ блок и не имеет заголовка
         const visibleBlocks = [
-            modelBlock,
-            blocks[0],
-            lengthBlock,
-            testBlock,
-            blocks[4], 
-            weightBlock,
-            blocks[6],
-            blocks[7],
-            blocks[8],
-            blocks[9],
-            blocks[10]
+            modelBlock,    // Агрегированный блок (без заголовка, всегда первый)
+            blocks[0],     // Код
+            newModelBlock, // **Новый блок: Модель**
+            lengthBlock,   // Довжина, м
+            testBlock,     // Тест, г
+            blocks[4],     // Лад
+            weightBlock,   // Вага, г
+            blocks[6],     // К-ть секцій
+            blocks[7],     // Трансп. довжина, см
+            blocks[8],     // Діаметр/довжина квівертипів, мм
+            blocks[9],     // Тест квівертипів
+            blocks[10]     // Ціна, грн
         ];
 
+        // Соответствующие заголовки (нужно обновить индексы из-за newModelBlock)
         const titles = [
-            null,
-            HEADERS[0],
-            HEADERS[2],
-            HEADERS[3],
-            HEADERS[4],
-            HEADERS[5],
-            HEADERS[6],
+            null,        // modelBlock (агрегированный) - нет заголовка
+            HEADERS[0],  // Код
+            HEADERS[1],  // Модель (новый блок)
+            HEADERS[2],  // Довжина, м
+            HEADERS[3],  // Тест, г
+            HEADERS[4],  // Лад
+            HEADERS[5],  // Вага, г
+            HEADERS[6], 
             HEADERS[7],
-            HEADERS[8],
+            HEADERS[8],  
             HEADERS[9],
             HEADERS[10]
         ];
 
         visibleBlocks.forEach((block, i) => {
-            if (!block || i === 0) return;
+            if (!block || i === 0 || i === 2) return; 
+
             let h4 = block.querySelector('h4.models__table-title');
             if (!h4) {
                 h4 = document.createElement('h4');
@@ -376,17 +414,13 @@ document.addEventListener('DOMContentLoaded', () => {
         item.innerHTML = '';
         item.appendChild(fragment);
 
-        const btn = item.querySelector('.models__table-btn');
-        if (btn && !btn.closest('.models__table-btn-mobile-wrap')) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'models__table-btn-mobile-wrap';
-            btn.parentNode.insertBefore(wrapper, btn);
-            wrapper.appendChild(btn);
+        if (btnMobileWrap) {
+            item.appendChild(btnMobileWrap);
         }
 
         modelBlock.style.cursor = 'pointer';
         modelBlock.addEventListener('click', e => {
-            if (window.innerWidth < 768) {
+            if (window.innerWidth < 769) {
                 e.stopPropagation();
                 item.classList.toggle('active');
             }
@@ -404,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleResize() {
-        const isMobile = window.innerWidth < 768;
+        const isMobile = window.innerWidth < 769;
         document.querySelectorAll('.models__table-item').forEach(item => {
             isMobile ? transformToMobile(item) : restoreToDesktop(item);
         });
@@ -458,7 +492,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (moreBtn && aboutBlock) {
         moreBtn.addEventListener('click', () => {
-            aboutBlock.classList.add('show-all');
+            const isOpened = aboutBlock.classList.toggle('show-all');
+
+            moreBtn.textContent = isOpened
+                ? moreBtn.dataset.showed
+                : moreBtn.dataset.original;
         });
     }
 });
+
+
+
+
+function updateButtonText() {
+    const isMobile = window.innerWidth < 769;
+    document.querySelectorAll('.models__table-btn').forEach(button => {
+        const originalText = button.dataset.original;
+        const mobileText = button.dataset.mobile;
+        button.textContent = isMobile && mobileText
+            ? mobileText
+            : originalText;
+    });
+}
+window.addEventListener('resize', updateButtonText);
+window.addEventListener('load', updateButtonText);
